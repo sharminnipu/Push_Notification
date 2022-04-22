@@ -9,6 +9,9 @@ class DatabaseService{
   Future sendPushNotification(String receiverTokenFcm) async{
 
     var request = {
+      "android": {
+        "priority": "max"
+      },
       'data': {
         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
         'type': 'COMMENT',
@@ -23,6 +26,8 @@ class DatabaseService{
     print(request);
 
     final response = await CallAPi().postPushNotification(request,'fcm/send');
+
+    print("response:${response.statusCode}");
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
