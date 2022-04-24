@@ -19,6 +19,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
  /* final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
   navigatorKey.currentState.pushNamed('/second_page');  */
   print("Handling a background message: ${message.data}");
+  print("fireTime:${message.sentTime}");
 
  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SecondPage()));
 
@@ -46,6 +47,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         ),
         NotificationActionButton(
           isDangerousOption: true,
+          buttonType: ActionButtonType.DisabledAction,
           autoDismissible: true,
           key: 'reject',
           label: 'Reject',
@@ -136,7 +138,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           importance: NotificationImportance.High,
 
         )  */
-
         NotificationChannel(
             channelGroupKey: 'category_tests',
             channelKey: 'call_channel',
@@ -145,6 +146,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             defaultColor: Color(0xFF9D50DD),
             importance: NotificationImportance.Max,
             criticalAlerts: true,
+            soundSource:'resource://raw/incoming_call',
             ledColor: Colors.white,
             channelShowBadge: true,
             locked: true,),
@@ -271,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
   DatabaseService _databaseService=DatabaseService();
   FirebaseMessaging _fcm=FirebaseMessaging.instance;
 
-  var receiverTokenFcm="c9Doj8FPRcmpf62LRMK11Y:APA91bH3AjiXEyjQ-WIlCDZpZpsgfr1ADTcvrR6bja-N5iragBtlT8KLQUdnN1THXfpAfnen10QvD-TbPru-irZK-fpYFiCiU5SQN1zXPduhqm85IyzZ9LjQIIMgemfmTWu_sX4oOw32";
+  var receiverTokenFcm="d2luA72DQsCuSVooNX6yYK:APA91bEqm0LaQN46eeJOerjD_pGjjMw9UwrePcks8-GBD36yEJEmrLFlGjkmULvI4AR3v60AkA2uXYd6eeohr3OUti4ntz3HwWZWtGsuaQH4eRR8x6xN8O2nC65PDgyeTMhhWvL2yXxG";
   var senderTokenFCM="";
 
 @override
@@ -292,11 +294,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   AwesomeNotifications().actionStream.listen(
           (receivedNotification) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                builder: (_) => SecondPage(),
+                ),
+                (route)=>route.isFirst);
+
         if (receivedNotification.buttonKeyPressed == "accept") {
           print("answer is here");
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => SecondPage()));
         } else if (receivedNotification.buttonKeyPressed == "reject") {
+          print("rejected");
+          AwesomeNotifications().dismiss(1);
         }
         print(receivedNotification);
       }
@@ -424,6 +435,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
+  }
+  @override
+  void dispose() {
+    AwesomeNotifications().actionSink.close();
+    super.dispose();
   }
 
 
